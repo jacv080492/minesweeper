@@ -34,6 +34,6 @@ class CellsController < ApplicationController
 
     private
     def cell_params
-      params.require(:cell).permit(:x_axis, :y_axis, :is_mined, :is_exposed, :is_flagged)
+      params.require(:cell).permit(:game_id, :x_axis, :y_axis, :is_mined, :is_exposed, :is_flagged)
     end
 end
