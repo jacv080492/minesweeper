@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  player_name: MyString
+  mines: 1
+  rows: 1
+  columns: 1
+  is_winner: false
+  game_is_over: false
+
+two:
+  player_name: MyString
+  mines: 1
+  rows: 1
+  columns: 1
+  is_winner: false
+  game_is_over: false
