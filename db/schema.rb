@@ -10,7 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_04_11_050420) do
+ActiveRecord::Schema[7.0].define(version: 2022_04_11_051722) do
+  create_table "cells", force: :cascade do |t|
+    t.integer "x_axis"
+    t.integer "y_axis"
+    t.boolean "is_mined"
+    t.boolean "is_exposed"
+    t.boolean "is_flagged"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "games", force: :cascade do |t|
     t.string "player_name"
     t.integer "mines"
