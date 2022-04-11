@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  get '/games', to: 'games#index'
+  resources :games
 
   get '/cells', to: 'cells#index'
 end
