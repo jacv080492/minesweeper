@@ -9,16 +9,7 @@ class CellsController < ApplicationController
     def show
         render json: @cell
     end
-
-    def create
-        @cell = Cell.new(cell_params)
-        if @cell.save
-          render json: @cell, status: :created, location: @cell
-        else
-          render json: @cell.errors, status: :unprocessable_entity
-        end
-    end
-
+    
     def update
         if @cell.update(cell_params)
           render json: @cell
