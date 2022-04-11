@@ -1,6 +1,6 @@
 require_relative './location'
 
-class Cell < Location
+class BoardCell < Location
     attr_reader :x_axis, :y_axis, :is_mined, :adyacent_cells
     attr_accessor :is_exposed, :is_flagged
 

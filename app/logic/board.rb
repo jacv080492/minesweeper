@@ -1,36 +1,42 @@
-require './cell.rb'
-require './mine.rb'
+require_relative './board_cell'
+require_relative './mine'
 
 class Board
     attr_reader :rows, :columns, :mines_quantity, :mines, :cells
 
-    def initialize(rows, columns, mines_quantity)
-        @rows = rows
-        @columns = columns
-        @mines_quantity = mines_quantity
-        @mines = []
-        @cells = []
+    def initialize(rows, columns, mines_quantity, model_cells)
+        if model_cells == nil
+            @rows = rows
+            @columns = columns
+            @mines_quantity = mines_quantity
+            @mines = []
+            @cells = []
 
-        spawn_mines
-        spawn_cells
-        unfold_board
-    end
-    
-    def unfold_board(game_over = false)
-        x = 0
-        while x < @rows
-            y = 0
-            while y < @columns
-                cell = get_cell(x, y)
-                show_cell(cell, "", game_over)
-                y +=1
+            spawn_mines
+            spawn_cells
+        else
+            @cells = []            
+            model_cells.each do |mc|
+                cell = BoardCell.new(mc.x_axis, mc.y_axis, mc.is_mined)
+                cell.is_exposed = mc.is_exposed
+                cell.is_flagged = mc.is_flagged
+                @cells.push(cell)
             end
-                puts ""
-                puts ""
-                x += 1
+            @rows = model_cells.max { |c| c.x_axis }.x_axis + 1
+            @columns = model_cells.max { |c| c.y_axis }.y_axis + 1
+            @mines = []
+            @cells.each do |c|
+                if c.is_mined
+                    @mines.push(Mine.new(c.x_axis, c.y_axis))
+                end
+            end
+            @mines_quantity = @mines.count
+            @cells.each do |c|
+                adyacent_locations.each { |al| assing_adyacent_cell(c, al[0], al[1]) }
+            end
         end
     end
-
+    
     def show_cell(cell, additional_message = "", game_over = false)
         mine_icon = "*"
         flag_icon = "!"
@@ -95,7 +101,7 @@ class Board
             while y < @columns
                 cell = get_cell(x, y)
                 if cell == nil
-                    cell = Cell.new(x, y, get_mine(x, y) != nil)
+                    cell = BoardCell.new(x, y, get_mine(x, y) != nil)
                     @cells.push(cell)
                 end
                 adyacent_locations.each { |al| spawn_adyacent_cell(cell, al[0], al[1]) }
@@ -114,9 +120,21 @@ class Board
             adyacent_cell = get_cell(acx, acy)
 
             if adyacent_cell == nil
-                adyacent_cell = Cell.new(acx, acy, get_mine(acx, acy) != nil)
+                adyacent_cell = BoardCell.new(acx, acy, get_mine(acx, acy) != nil)
                 @cells.push(adyacent_cell)
             end
+            if cell.adyacent_cells.find_all { |ac| ac.x_axis == acx && ac.y_axis == acy }.count == 0
+                cell.add_adyacent(adyacent_cell)
+            end
+        end
+    end
+
+    private
+    def assing_adyacent_cell(cell, alx, aly)
+        acx = cell.x_axis + alx
+        acy = cell.y_axis + aly
+        if correct_location?(acx, acy)
+            adyacent_cell = get_cell(acx, acy)
             if cell.adyacent_cells.find_all { |ac| ac.x_axis == acx && ac.y_axis == acy }.count == 0
                 cell.add_adyacent(adyacent_cell)
             end
@@ -138,52 +156,3 @@ class Board
         return false
     end
   end
-
-  rows = 4
-  columns = 4
-  mines_quantity = 2
-  safe_area = (rows * columns) - mines_quantity
-  game_over = false
-
- board = Board.new(rows, columns, mines_quantity)
-
- while !game_over
-    puts ""
-    puts "Ayuda ?? Minas en:"
-    board.mines.each { |m| puts m.to_s }
-    
-    puts ""
-    puts "Coordenada X: "
-    x = gets.chomp.to_i
-    puts "Coordenada Y: "
-    y = gets.chomp.to_i
-
-    cell = board.get_cell(x, y)
-    
-    puts "Destapar/Banderear?(d/b)"
-    action = gets.chomp
-
-    if action == "d"
-        is_mined = board.expose_cell(cell)
-        board.show_cell(cell, "Destapaste: =>")
-        puts ""
-        if is_mined
-            game_over = true
-        end
-        if safe_area == board.cells.find_all { |c| c.is_exposed }.count
-            puts "Felicidades!! haz completado el juego :D"
-            game_over = true
-        end
-    elsif action == "b"
-        board.flag_cell(cell)
-        board.show_cell(cell, "Bandereaste: =>")
-        puts ""
-    else
-        puts "Comado no reconocido, ingrese d: para descubrir o b: para banderear"
-    end
-    
-    puts ""
-    board.unfold_board(game_over);
- end
-
- puts "El juego ha terminado"
