@@ -37,6 +37,10 @@ class Board
         end
     end
     
+    def is_winner 
+        ((@rows * @columns) - @mines_quantity) == @cells.find_all { |c| c.is_exposed }.count
+    end
+
     def show_cell(cell, additional_message = "", game_over = false)
         mine_icon = "*"
         flag_icon = "!"
@@ -62,7 +66,7 @@ class Board
     end
 
     def expose_cell(cell)
-        cell.is_exposed = false
+        cell.is_exposed = false;
         if !cell.is_mined
             expose_cells_recursive(cell)
             return false
@@ -75,6 +79,8 @@ class Board
     private
     def expose_cells_recursive(cell)
         if !cell.is_exposed
+            show_cell(cell, "=====> celda expuesta:", true)
+            puts ""
             cell.is_exposed = true
             if cell.adyacent_cells.find_all { |ac| ac.is_mined }.count == 0
                 cell.adyacent_cells.each { |ac| expose_cells_recursive(ac) }
@@ -128,7 +134,7 @@ class Board
             end
         end
     end
-
+    
     private
     def assing_adyacent_cell(cell, alx, aly)
         acx = cell.x_axis + alx
@@ -140,7 +146,7 @@ class Board
             end
         end
     end
-    
+
     private
     def adyacent_locations
         cvs = [ [-1, -1], [-1, 0], [0, -1], [+1, -1], [+1, 0], [+1, +1], [0, +1], [-1, +1] ]
